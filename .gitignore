@@ -1,0 +1,12 @@
+# Python #
+*.pyc
+__pycache__/
+venv/
+env/
+.env
+coverage/
+
+# Docker #
+.DS_Store
+docker-compose.override.yml
+
