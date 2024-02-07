@@ -1,4 +1,4 @@
-name: Build and Push Container
+name: Build Docker Image and Run Tests
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
- test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
       - name: Run pytest
         run: pytest
 
-  build:
+  build-and-push:
     needs: test
     runs-on: ubuntu-latest
 
