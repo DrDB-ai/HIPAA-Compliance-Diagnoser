@@ -1,0 +1,6 @@
+streamlit
+psycopg2-binary
+mysql-connector-python
+pyodbc
+ibm_db
+cx_Oracle
