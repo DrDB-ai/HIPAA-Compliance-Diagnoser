@@ -19,7 +19,12 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - name: Get the commit hash
+        id: commit_hash
+        run: echo "::set-output name=hash::$(git rev-parse --short HEAD)"
+
       - name: Build and push container
         run: |
           IMAGE_NAME=ghcr.io/drdb-ai/db_hipaa_compliance_report
-          docker buildx build --push --tag $IMAGE_NAME .
+          COMMIT_HASH=$(echo ${{ steps.commit_hash.outputs.hash }})
+          docker buildx build --push --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:$COMMIT_HASH .
