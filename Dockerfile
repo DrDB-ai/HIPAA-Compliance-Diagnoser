@@ -25,5 +25,5 @@ COPY . .
 EXPOSE 8501
 
 # Command to run the Streamlit application
-CMD ["streamlit", "run", "--server.port", "8501", "app.py", "--server.fileWatcherType", "none"]
+CMD ["streamlit", "run", "--server.port", "8501", "src/app.py", "--server.fileWatcherType", "none"]
 

@@ -57,14 +57,14 @@ class PostgreSQLConnector(DBConnector):
         )
 
     def scan_for_sensitive_data(self, cursor):
-        cursor.execute("SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%patient%'")
+        cursor.execute("SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%patient%' AND TABLE_NAME != 'pg_hba_file_rules'")
         sensitive_data = cursor.fetchall()
 
         additional_terms = ["medical condition", "ssn", "dob", "address", "phone number", "email address",
                             "medical procedure", "healthcare provider", "medication name", "insurance information",
                             "lab result", "genetic information", "payment information"]
         for term in additional_terms:
-            cursor.execute(f"SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%{term}%'")
+            cursor.execute(f"SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%{term}%' AND TABLE_NAME != 'pg_hba_file_rules'")
             sensitive_data.extend(cursor.fetchall())
 
         return sensitive_data
