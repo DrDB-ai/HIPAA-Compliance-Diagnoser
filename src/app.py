@@ -170,7 +170,7 @@ class MySQLConnector(DBConnector):
             },
             "Database Activity Monitoring Check": {
                 "description": "This check verifies if database activity monitoring is enabled in the MySQL database.",
-                "details": "The database activity monitoring check queries the 'information_schema.processlist' system view to determine if the processlist is accessible, indicating the presence of activity monitoring functionality."
+                "details": "The database activity monitoring checks that 'general_log', 'slow_query_log', and 'performance_schema' are enabled, indicating the presence of activity monitoring functionality."
             }
         }
 
