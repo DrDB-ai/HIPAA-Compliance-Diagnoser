@@ -148,8 +148,8 @@ class MySQLConnector(DBConnector):
         return ssl_status == "YES"
 
     def check_activity_monitoring(self, cursor):
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'processlist')")
-        return cursor.fetchone()[0]
+        cursor.execute("SELECT @@general_log = 1 AND @@slow_query_log = 1 AND @@performance_schema = 1 AS result")
+        return bool(cursor.fetchone()[0])
 
     def get_description(self):
         return {
