@@ -22,7 +22,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install testcontainers-postgres testcontainers-mysql
+          pip install testcontainers-postgres testcontainers-mysql cryptography
 
       - name: Run Tests
         run: python -m unittest discover tests
