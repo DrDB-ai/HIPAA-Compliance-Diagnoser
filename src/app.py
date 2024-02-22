@@ -140,7 +140,8 @@ class MySQLConnector(DBConnector):
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
-        return False  # MySQL does not have a built-in audit trail feature
+        cursor.execute("SELECT IF(VERSION() LIKE '%Enterprise%', IF((SELECT COUNT(*) FROM information_schema.plugins WHERE plugin_name = 'audit_log' AND plugin_status = 'ACTIVE') > 0, 'true', 'false'), 'false') AS audit_log_enabled")
+        return bool(cursor.fetchone()[0])
 
     def check_encryption(self, cursor):
         cursor.execute("SHOW VARIABLES LIKE 'have_ssl'")
@@ -162,7 +163,8 @@ class MySQLConnector(DBConnector):
                 "details": "The access control check queries the 'SHOW GRANTS' statement to retrieve the permissions granted to the current user."
             },
             "Audit Trail Check": {
-                "description": "MySQL does not have a built-in audit trail feature. Consider implementing a custom solution or using third-party tools/plugins."
+               "description": "This check verifies the existence of an audit trail mechanism in the database to track access and modifications to patient data.",
+                "details": "The audit trail checks if the audit_log plugin is enabled. This check is only enabled for MySQL Enterprise."
             },
             "Encryption Check": {
                 "description": "This check verifies if encryption is enabled in the MySQL database.",
