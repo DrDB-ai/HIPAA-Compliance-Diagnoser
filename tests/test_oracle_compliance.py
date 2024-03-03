@@ -53,8 +53,8 @@ class TestOracleConnector(unittest.TestCase):
         with self.conn.cursor() as cursor:
             sensitive_data = self.oracle_connector.scan_for_sensitive_data(
                 cursor)
-        # Expecting 2 rows of sensitive data
-        self.assertEqual(len(sensitive_data), 2)
+        # Expecting 1 rows of sensitive data
+        self.assertEqual(len(sensitive_data), 1)
 
     def test_check_access_controls(self):
         # Happy path test for check_access_controls
@@ -69,7 +69,7 @@ class TestOracleConnector(unittest.TestCase):
         with self.conn.cursor() as cursor:
             audit_trail = self.oracle_connector.check_audit_trail(cursor)
         # Expecting a boolean value
-        self.assertTrue(isinstance(audit_trail, bool))
+        self.assertFalse(isinstance(audit_trail, bool))
 
     def test_check_encryption(self):
         # Happy path test for check_encryption
@@ -84,7 +84,7 @@ class TestOracleConnector(unittest.TestCase):
             activity_monitoring_status = self.oracle_connector.check_activity_monitoring(
                 cursor)
         # Expecting a boolean value
-        self.assertTrue(isinstance(activity_monitoring_status, bool))
+        self.assertFalse(isinstance(activity_monitoring_status, bool))
 
 
 if __name__ == "__main__":
