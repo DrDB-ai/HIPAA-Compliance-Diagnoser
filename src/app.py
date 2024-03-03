@@ -150,7 +150,8 @@ class MySQLConnector(DBConnector):
         return sensitive_data
 
     def check_access_controls(self, cursor):
-        cursor.execute("SHOW GRANTS FOR CURRENT_USER()")
+        cursor.execute(
+            "SELECT grantee, privilege_type FROM information_schema.USER_PRIVILEGES WHERE grantee='PUBLIC'")
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
@@ -175,7 +176,7 @@ class MySQLConnector(DBConnector):
             },
             "Access Control Check": {
                 "description": "This check examines the database's access controls to ensure that only authorized users have access to patient data.",
-                "details": "The access control check queries the 'SHOW GRANTS' statement to retrieve the permissions granted to the current user."
+                "details": "The access control check queries the 'information_schema.role_table_grants' table to retrieve the permissions granted to the 'PUBLIC' role."
             },
             "Audit Trail Check": {
                 "description": "This check verifies the existence of an audit trail mechanism in the database to track access and modifications to patient data.",
