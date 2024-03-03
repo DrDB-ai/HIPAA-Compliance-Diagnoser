@@ -24,25 +24,32 @@ st.markdown("""
 class DBConnector:
 
     def connect(self, host, port, database, username, password):
-        raise NotImplementedError("connect method must be implemented by subclasses")
+        raise NotImplementedError(
+            "connect method must be implemented by subclasses")
 
     def scan_for_sensitive_data(self, cursor):
-        raise NotImplementedError("scan_for_sensitive_data method must be implemented by subclasses")
+        raise NotImplementedError(
+            "scan_for_sensitive_data method must be implemented by subclasses")
 
     def check_access_controls(self, cursor):
-        raise NotImplementedError("check_access_controls method must be implemented by subclasses")
+        raise NotImplementedError(
+            "check_access_controls method must be implemented by subclasses")
 
     def check_audit_trail(self, cursor):
-        raise NotImplementedError("check_audit_trail method must be implemented by subclasses")
+        raise NotImplementedError(
+            "check_audit_trail method must be implemented by subclasses")
 
     def check_encryption(self, cursor):
-        raise NotImplementedError("check_encryption method must be implemented by subclasses")
+        raise NotImplementedError(
+            "check_encryption method must be implemented by subclasses")
 
     def check_activity_monitoring(self, cursor):
-        raise NotImplementedError("check_activity_monitoring method must be implemented by subclasses")
+        raise NotImplementedError(
+            "check_activity_monitoring method must be implemented by subclasses")
 
     def get_description(self):
-        raise NotImplementedError("get_description method must be implemented by subclasses")
+        raise NotImplementedError(
+            "get_description method must be implemented by subclasses")
 
 
 # Define PostgreSQL connector
@@ -57,24 +64,28 @@ class PostgreSQLConnector(DBConnector):
         )
 
     def scan_for_sensitive_data(self, cursor):
-        cursor.execute("SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%patient%' AND TABLE_NAME != 'pg_hba_file_rules'")
+        cursor.execute(
+            "SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%patient%' AND TABLE_NAME != 'pg_hba_file_rules'")
         sensitive_data = cursor.fetchall()
 
         additional_terms = ["medical condition", "ssn", "dob", "address", "phone number", "email address",
                             "medical procedure", "healthcare provider", "medication name", "insurance information",
                             "lab result", "genetic information", "payment information"]
         for term in additional_terms:
-            cursor.execute(f"SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%{term}%' AND TABLE_NAME != 'pg_hba_file_rules'")
+            cursor.execute(
+                f"SELECT table_name, column_name FROM information_schema.columns WHERE column_name ILIKE '%{term}%' AND TABLE_NAME != 'pg_hba_file_rules'")
             sensitive_data.extend(cursor.fetchall())
 
         return sensitive_data
 
     def check_access_controls(self, cursor):
-        cursor.execute("SELECT grantee, privilege_type FROM information_schema.role_table_grants WHERE grantee='PUBLIC'")
+        cursor.execute(
+            "SELECT grantee, privilege_type FROM information_schema.role_table_grants WHERE grantee='PUBLIC'")
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
-        cursor.execute("SELECT setting FROM pg_settings WHERE name = 'log_statement'")
+        cursor.execute(
+            "SELECT setting FROM pg_settings WHERE name = 'log_statement'")
         log_statement_setting = cursor.fetchone()[0]
         return log_statement_setting == 'all'
 
@@ -83,7 +94,8 @@ class PostgreSQLConnector(DBConnector):
         return cursor.fetchone() is not None
 
     def check_activity_monitoring(self, cursor):
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.views WHERE table_name = 'pg_stat_activity')")
+        cursor.execute(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.views WHERE table_name = 'pg_stat_activity')")
         return cursor.fetchone()[0]
 
     def get_description(self):
@@ -123,14 +135,16 @@ class MySQLConnector(DBConnector):
         )
 
     def scan_for_sensitive_data(self, cursor):
-        cursor.execute("SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%patient%'")
+        cursor.execute(
+            "SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%patient%'")
         sensitive_data = cursor.fetchall()
 
         additional_terms = ["medical condition", "ssn", "dob", "address", "phone number", "email address",
                             "medical procedure", "healthcare provider", "medication name", "insurance information",
                             "lab result", "genetic information", "payment information"]
         for term in additional_terms:
-            cursor.execute(f"SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%{term}%'")
+            cursor.execute(
+                f"SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%{term}%'")
             sensitive_data.extend(cursor.fetchall())
 
         return sensitive_data
@@ -149,7 +163,8 @@ class MySQLConnector(DBConnector):
         return ssl_status == "YES"
 
     def check_activity_monitoring(self, cursor):
-        cursor.execute("SELECT @@general_log = 1 AND @@slow_query_log = 1 AND @@performance_schema = 1 AS result")
+        cursor.execute(
+            "SELECT @@general_log = 1 AND @@slow_query_log = 1 AND @@performance_schema = 1 AS result")
         return bool(cursor.fetchone()[0])
 
     def get_description(self):
@@ -163,7 +178,7 @@ class MySQLConnector(DBConnector):
                 "details": "The access control check queries the 'SHOW GRANTS' statement to retrieve the permissions granted to the current user."
             },
             "Audit Trail Check": {
-               "description": "This check verifies the existence of an audit trail mechanism in the database to track access and modifications to patient data.",
+                "description": "This check verifies the existence of an audit trail mechanism in the database to track access and modifications to patient data.",
                 "details": "The audit trail checks if the audit_log plugin is enabled. This check is only enabled for MySQL Enterprise."
             },
             "Encryption Check": {
@@ -185,24 +200,28 @@ class SQLServerConnector(DBConnector):
         )
 
     def scan_for_sensitive_data(self, cursor):
-        cursor.execute("SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%patient%'")
+        cursor.execute(
+            "SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%patient%'")
         sensitive_data = cursor.fetchall()
 
         additional_terms = ["medical condition", "ssn", "dob", "address", "phone number", "email address",
                             "medical procedure", "healthcare provider", "medication name", "insurance information",
                             "lab result", "genetic information", "payment information"]
         for term in additional_terms:
-            cursor.execute(f"SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%{term}%'")
+            cursor.execute(
+                f"SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE '%{term}%'")
             sensitive_data.extend(cursor.fetchall())
 
         return sensitive_data
 
     def check_access_controls(self, cursor):
-        cursor.execute("SELECT permission_name, state_desc FROM sys.database_permissions WHERE grantee_principal_id = USER_ID()")
+        cursor.execute(
+            "SELECT permission_name, state_desc FROM sys.database_permissions WHERE grantee_principal_id = USER_ID()")
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
-        cursor.execute("SELECT is_trustworthy_on FROM sys.databases WHERE name = DB_NAME()")
+        cursor.execute(
+            "SELECT is_trustworthy_on FROM sys.databases WHERE name = DB_NAME()")
         return cursor.fetchone()[0]
 
     def check_encryption(self, cursor):
@@ -248,27 +267,31 @@ class DB2Connector(DBConnector):
         )
 
     def scan_for_sensitive_data(self, cursor):
-        cursor.execute("SELECT TABSCHEMA, TABNAME, COLNAME FROM SYSCAT.COLUMNS WHERE COLNAME LIKE '%PATIENT%'")
+        cursor.execute(
+            "SELECT TABSCHEMA, TABNAME, COLNAME FROM SYSCAT.COLUMNS WHERE COLNAME LIKE '%PATIENT%'")
         sensitive_data = cursor.fetchall()
 
         additional_terms = ["MEDICAL CONDITION", "SSN", "DOB", "ADDRESS", "PHONE NUMBER", "EMAIL ADDRESS",
                             "MEDICAL PROCEDURE", "HEALTHCARE PROVIDER", "MEDICATION NAME", "INSURANCE INFORMATION",
                             "LAB RESULT", "GENETIC INFORMATION", "PAYMENT INFORMATION"]
         for term in additional_terms:
-            cursor.execute(f"SELECT TABSCHEMA, TABNAME, COLNAME FROM SYSCAT.COLUMNS WHERE COLNAME LIKE '%{term}%'")
+            cursor.execute(
+                f"SELECT TABSCHEMA, TABNAME, COLNAME FROM SYSCAT.COLUMNS WHERE COLNAME LIKE '%{term}%'")
             sensitive_data.extend(cursor.fetchall())
 
         return sensitive_data
 
     def check_access_controls(self, cursor):
-        cursor.execute("SELECT authid, objectname FROM syscat.tabauth WHERE authid=CURRENT_USER")
+        cursor.execute(
+            "SELECT authid, objectname FROM syscat.tabauth WHERE authid=CURRENT_USER")
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
         return False  # DB2 does not have a built-in audit trail feature
 
     def check_encryption(self, cursor):
-        cursor.execute("SELECT DBMS_INFO.TBSPACE_ENCRYPT FROM SYSIBMADM.ENV_INST_INFO")
+        cursor.execute(
+            "SELECT DBMS_INFO.TBSPACE_ENCRYPT FROM SYSIBMADM.ENV_INST_INFO")
         return cursor.fetchone()[0] == "YES"
 
     def check_activity_monitoring(self, cursor):
@@ -306,31 +329,66 @@ class OracleConnector(DBConnector):
         )
 
     def scan_for_sensitive_data(self, cursor):
-        cursor.execute("SELECT TABLE_NAME, COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE COLUMN_NAME LIKE '%PATIENT%'")
+        cursor.execute("""
+            SELECT TABLE_NAME, COLUMN_NAME 
+            FROM ALL_TAB_COLUMNS 
+            WHERE COLUMN_NAME LIKE '%PATIENT%'
+            AND OWNER NOT IN ('SYS', 'SYSTEM', 'XDB', 'DBSNMP', 'APEX_040000', 'OUTLN', 'CTXSYS', 'WMSYS', 'ORDSYS', 'ORDPLUGINS', 'MDSYS', 'FLOWS_030000', 'ORACLE_OCM', 'APEX_PUBLIC_USER', 'ANONYMOUS', 'DIP', 'ORDDATA', 'XDBEXT', 'APEX_030200')
+            AND TABLE_NAME NOT LIKE 'BIN$%'
+            AND TABLE_NAME NOT LIKE 'SYS_%'
+            AND TABLE_NAME NOT LIKE 'APEX%'
+            AND TABLE_NAME NOT LIKE 'DR$%'
+            AND TABLE_NAME NOT LIKE 'AQ$%'
+            AND TABLE_NAME NOT IN ('CONTAINER_DATABASE', 'DATABASE', 'CHANGE_LOG_QUEUE_TABLE')
+        """)
         sensitive_data = cursor.fetchall()
 
         additional_terms = ["MEDICAL CONDITION", "SSN", "DOB", "ADDRESS", "PHONE NUMBER", "EMAIL ADDRESS",
                             "MEDICAL PROCEDURE", "HEALTHCARE PROVIDER", "MEDICATION NAME", "INSURANCE INFORMATION",
                             "LAB RESULT", "GENETIC INFORMATION", "PAYMENT INFORMATION"]
         for term in additional_terms:
-            cursor.execute(f"SELECT TABLE_NAME, COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE COLUMN_NAME LIKE '%{term}%'")
+            cursor.execute(
+                f"""
+                SELECT TABLE_NAME, COLUMN_NAME 
+                FROM ALL_TAB_COLUMNS 
+                WHERE COLUMN_NAME LIKE '%{term}%'
+                AND OWNER NOT IN ('SYS', 'SYSTEM', 'XDB', 'DBSNMP', 'APEX_040000', 'OUTLN', 'CTXSYS', 'WMSYS', 'ORDSYS', 'ORDPLUGINS', 'MDSYS', 'FLOWS_030000', 'ORACLE_OCM', 'APEX_PUBLIC_USER', 'ANONYMOUS', 'DIP', 'ORDDATA', 'XDBEXT', 'APEX_030200')
+                AND TABLE_NAME NOT LIKE 'BIN$%'
+                AND TABLE_NAME NOT LIKE 'SYS_%'
+                AND TABLE_NAME NOT LIKE 'APEX%'
+                AND TABLE_NAME NOT LIKE 'DR$%'
+                AND TABLE_NAME NOT LIKE 'AQ$%'
+                AND TABLE_NAME NOT IN ('CONTAINER_DATABASE', 'DATABASE', 'CHANGE_LOG_QUEUE_TABLE')
+                """
+            )
             sensitive_data.extend(cursor.fetchall())
 
         return sensitive_data
 
     def check_access_controls(self, cursor):
-        cursor.execute("SELECT grantee, privilege FROM USER_SYS_PRIVS WHERE grantee=CURRENT_USER")
+        cursor.execute("""
+            SELECT table_name, grantee, privilege 
+            FROM dba_tab_privs 
+            WHERE grantee = 'PUBLIC' 
+            AND owner NOT IN ('OLAPSYS', 'DVSYS', 'DVF', 'LBACSYS', 'GSMADMIN_INTERNAL', 'SYS', 'SYSTEM', 'XDB', 'DBSNMP', 'APEX_040000', 'OUTLN', 'CTXSYS', 'WMSYS', 'ORDSYS', 'ORDPLUGINS', 'MDSYS', 'FLOWS_030000', 'ORACLE_OCM', 'APEX_PUBLIC_USER', 'ANONYMOUS', 'DIP', 'ORDDATA', 'XDBEXT', 'APEX_030200')
+        """)
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
-        return False  # Oracle does not have a built-in audit trail feature
+        cursor.execute(
+            "SELECT CASE WHEN value IS NOT NULL THEN 'true' ELSE 'false' END AS audit_enabled FROM v$parameter WHERE name = 'audit_trail'")
+        return cursor.fetchone()[0]
 
     def check_encryption(self, cursor):
         cursor.execute("SELECT value FROM v$parameter WHERE name = 'encrypt_new_tablespaces'")
-        return cursor.fetchone()[0] == "TRUE"
+        result = cursor.fetchone()
+        if result:
+            return result[0] in ['CLOUD_ONLY', 'ALWAYS', 'DDL']
+        else:
+            return False
 
     def check_activity_monitoring(self, cursor):
-        cursor.execute("SELECT EXISTS (SELECT 1 FROM V$SESSION)")
+        cursor.execute("SELECT CASE WHEN (SELECT value FROM v$parameter WHERE name = 'statistics_level') IN ('TYPICAL', 'ALL') AND (SELECT value FROM v$parameter WHERE name = 'control_management_pack_access') = 'DIAGNOSTIC+TUNING' THEN 1 ELSE 0 END AS activity_monitoring_enabled FROM dual")
         return cursor.fetchone()[0]
 
     def get_description(self):
@@ -341,17 +399,19 @@ class OracleConnector(DBConnector):
             },
             "Access Control Check": {
                 "description": "This check examines the database's access controls to ensure that only authorized users have access to patient data.",
-                "details": "The access control check queries the 'USER_SYS_PRIVS' system view to verify the privileges granted to the current user."
+                "details": "The access control check queries the 'DBA_TAB_PRIVS' view to verify the privileges granted to users or roles on specific tables. This view provides information about table-level privileges granted to users and roles in the database. By examining the privileges granted to public users or roles ('PUBLIC' grantee), this check ensures that any overly permissive access controls are identified and remediated."
             },
             "Audit Trail Check": {
-                "description": "Oracle does not have a built-in audit trail feature. Consider implementing a custom solution or using third-party tools/plugins."
+                "description": "This check verifies the existence of an audit trail mechanism in the Oracle database to track access and modifications to patient data.",
+                "details": "The audit trail check queries the 'v$parameter' system view to determine if the 'audit_trail' parameter is set, indicating the presence of audit trail functionality."
             },
             "Encryption Check": {
                 "description": "This check verifies if encryption is enabled in the Oracle database.",
                 "details": "The encryption check queries the 'SELECT value FROM v$parameter WHERE name = 'encrypt_new_tablespaces'' statement to determine if tablespace encryption is enabled."
             },
             "Database Activity Monitoring Check": {
-                "description": "Oracle does not have a built-in database activity monitoring feature. Consider implementing a custom solution or using third-party tools/plugins."
+                "description": "This check verifies if activity monitoring is enabled in the Oracle database.",
+                "details": "The activity monitoring check queries system views such as 'v$parameter' to determine if the necessary parameters related to activity monitoring, such as 'statistics_level' and 'control_management_pack_access', are set to appropriate values, indicating the presence of activity monitoring functionality."
             }
         }
 
@@ -372,10 +432,13 @@ def get_database(db_type):
         raise RuntimeError("Unsupported database type.")
 
 # Main function
+
+
 def main():
     st.title("HIPAA Compliance Checker")
 
-    db_type = st.selectbox("Select database type", ["PostgreSQL", "MySQL", "SQL Server", "DB2", "Oracle"])
+    db_type = st.selectbox("Select database type", [
+                           "PostgreSQL", "MySQL", "SQL Server", "DB2", "Oracle"])
 
     # Display all the compliance checks for the selected database type
     st.markdown(f"## Compliance Checks")
@@ -469,20 +532,25 @@ def main():
                     st.markdown("❌ Audit Trail Check - Failed")
 
                 encryption_status_icon = "✅" if encryption else "❌"
-                st.markdown(f"{encryption_status_icon} Encryption Check - {'Passed' if encryption else 'Failed'}")
+                st.markdown(
+                    f"{encryption_status_icon} Encryption Check - {'Passed' if encryption else 'Failed'}")
 
                 activity_monitoring_status_icon = "✅" if activity_monitoring else "❌"
-                st.markdown(f"{activity_monitoring_status_icon} Database Activity Monitoring Check - {'Passed' if activity_monitoring else 'Failed'}")
+                st.markdown(
+                    f"{activity_monitoring_status_icon} Database Activity Monitoring Check - {'Passed' if activity_monitoring else 'Failed'}")
 
                 # If all checks pass, display success message
                 if sensitive_data_status and access_controls_status and audit_trail and encryption and activity_monitoring:
-                    st.success("The database meets HIPAA compliance requirements.")
+                    st.success(
+                        "The database meets HIPAA compliance requirements.")
                 else:
-                    st.error("The database does not meet HIPAA compliance requirements.")
+                    st.error(
+                        "The database does not meet HIPAA compliance requirements.")
 
                 conn.close()
         except Exception as e:
             st.error(str(e))
+
 
 if __name__ == "__main__":
     main()

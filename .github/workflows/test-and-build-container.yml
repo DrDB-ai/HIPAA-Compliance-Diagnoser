@@ -22,7 +22,17 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install testcontainers-postgres testcontainers-mysql cryptography
+          pip install testcontainers-postgres testcontainers-mysql testcontainers-oracle cryptography
+
+      - name: Install Oracle Driver
+        run: |
+          sudo apt-get update && apt-get install -y --no-install-recommends libpq-dev unixodbc-dev wget unzip libaio1 && rm -rf /var/lib/apt/lists/*
+          mkdir -p /opt/oracle
+          cd /opt/oracle
+          wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basic-linux.x64-21.13.0.0.0dbru.zip
+          unzip instantclient-basic-linux.x64-21.13.0.0.0dbru.zip
+          sudo sh -c "echo /opt/oracle/instantclient_21_13 > /etc/ld.so.conf.d/oracle-instantclient.conf"
+          sudo ldconfig
 
       - name: Run Tests
         run: python -m unittest discover tests
