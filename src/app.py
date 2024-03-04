@@ -197,7 +197,7 @@ class MySQLConnector(DBConnector):
 class SQLServerConnector(DBConnector):
     def connect(self, host, port, database, username, password):
         return pyodbc.connect(
-            f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={host},{port};DATABASE={database};UID={username};PWD={password}'
+            f'DRIVER={{ODBC Driver 18 for SQL Server}};SERVER={host},{port};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes;'
         )
 
     def scan_for_sensitive_data(self, cursor):
@@ -216,14 +216,24 @@ class SQLServerConnector(DBConnector):
         return sensitive_data
 
     def check_access_controls(self, cursor):
-        cursor.execute(
-            "SELECT permission_name, state_desc FROM sys.database_permissions WHERE grantee_principal_id = USER_ID()")
+        cursor.execute("""
+            SELECT 
+                OBJECT_NAME(major_id) AS object_name,
+                permission_name,
+                state_desc
+            FROM 
+                sys.database_permissions 
+            WHERE 
+                grantee_principal_id = USER_ID('PUBLIC')
+                AND OBJECT_SCHEMA_NAME(major_id) NOT IN ('sys', 'information_schema') -- Exclude system schemas
+                AND OBJECT_NAME(major_id) NOT LIKE 'spt!_%%' ESCAPE '!' -- Exclude objects starting with 'spt_'
+        """)
         return cursor.fetchall()
 
     def check_audit_trail(self, cursor):
         cursor.execute(
-            "SELECT is_trustworthy_on FROM sys.databases WHERE name = DB_NAME()")
-        return cursor.fetchone()[0]
+            "SELECT COUNT(*) FROM sys.server_audits WHERE is_state_enabled = 1")
+        return cursor.fetchone()[0] > 0
 
     def check_encryption(self, cursor):
         cursor.execute("SELECT name FROM sys.databases WHERE is_encrypted = 1")
@@ -231,8 +241,8 @@ class SQLServerConnector(DBConnector):
         return len(encrypted_databases) > 0
 
     def check_activity_monitoring(self, cursor):
-        cursor.execute("SELECT OBJECT_ID('sys.dm_exec_requests')")
-        return cursor.fetchone() is not None
+        cursor.execute("SELECT CASE WHEN OBJECT_ID('sys.dm_exec_requests') IS NOT NULL AND (SELECT value_in_use FROM sys.configurations WHERE name = 'default trace enabled') = 1 THEN 1 ELSE 0 END AS activity_monitoring_enabled")
+        return cursor.fetchone()[0]
 
     def get_description(self):
         return {
@@ -246,15 +256,15 @@ class SQLServerConnector(DBConnector):
             },
             "Audit Trail Check": {
                 "description": "This check verifies the existence of an audit trail mechanism in the database to track access and modifications to patient data.",
-                "details": "The audit trail check queries the 'sys.databases' system view to check the 'is_trustworthy_on' property."
+                "details": "The audit trail check queries the 'sys.server_audits' system view to count the number of active audit trails where the state is enabled."
             },
             "Encryption Check": {
                 "description": "This check verifies if encryption is enabled in the SQL Server database.",
-                "details": "The encryption check queries the 'sys.dm_database_encryption_keys' system view to determine if any database encryption keys are present, indicating encryption functionality."
+                "details": "The encryption check queries the 'sys.databases' system view to identify databases where encryption is enabled."
             },
             "Database Activity Monitoring Check": {
                 "description": "This check verifies if database activity monitoring is enabled in the SQL Server database.",
-                "details": "The database activity monitoring check queries the 'sys.dm_exec_sessions' system view to determine if session information is accessible, indicating the presence of activity monitoring functionality."
+                "details": "The activity monitoring check queries system views like 'sys.dm_exec_requests' and 'sys.configurations' to determine if the required components for activity monitoring are enabled."
             }
         }
 
