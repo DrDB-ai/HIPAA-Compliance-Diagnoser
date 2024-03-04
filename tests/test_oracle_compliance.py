@@ -44,10 +44,6 @@ class TestOracleConnector(unittest.TestCase):
         cls.conn.close()
         cls.oracle_container.stop()
 
-    def setUp(self):
-        # Initialize the OracleConnector instance
-        self.oracle_connector = OracleConnector()
-
     def test_scan_for_sensitive_data(self):
         # Happy path test for scan_for_sensitive_data
         with self.conn.cursor() as cursor:

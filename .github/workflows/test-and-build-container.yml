@@ -22,7 +22,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install testcontainers-postgres testcontainers-mysql testcontainers-oracle cryptography
+          pip install testcontainers-postgres testcontainers-mysql testcontainers-oracle testcontainers-mssql cryptography
 
       - name: Install Oracle Driver
         run: |
