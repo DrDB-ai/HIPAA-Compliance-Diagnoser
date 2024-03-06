@@ -1,6 +1,6 @@
 import unittest
 from testcontainers.postgres import PostgresContainer
-from src.app import PostgreSQLConnector
+from src.connectors.postgresql_connector import PostgreSQLConnector
 
 
 class TestPostgreSQLConnector(unittest.TestCase):

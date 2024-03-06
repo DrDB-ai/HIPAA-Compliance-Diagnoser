@@ -1,6 +1,6 @@
 import unittest
 from testcontainers.mssql import SqlServerContainer
-from src.app import SQLServerConnector
+from src.connectors.sqlserver_connector import SQLServerConnector
 
 
 class TestMsSqlServerConnector(unittest.TestCase):

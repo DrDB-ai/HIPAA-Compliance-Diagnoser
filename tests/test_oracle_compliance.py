@@ -1,6 +1,6 @@
 import unittest
 from testcontainers.oracle import OracleDbContainer
-from src.app import OracleConnector
+from src.connectors.oracle_connector import OracleConnector
 
 
 class TestOracleConnector(unittest.TestCase):

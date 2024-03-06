@@ -1,6 +1,6 @@
 import unittest
 from testcontainers.mysql import MySqlContainer
-from src.app import MySQLConnector
+from src.connectors.mysql_connector import MySQLConnector
 
 
 class TestMySQLConnector(unittest.TestCase):
