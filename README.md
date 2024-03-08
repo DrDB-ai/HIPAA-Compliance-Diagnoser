@@ -1,6 +1,10 @@
-# HIPAA Compliance Checker
+# HIPAA Compliance Diagnoser
 
-This repository contains code for checking HIPAA compliance for different database management systems (DBMS).
+[![Build](https://github.com/Kaleidoscope-Inc/kaleidoscope-webapp/actions/workflows/main.yml/badge.svg)](https://github.com/DrDB-ai/HIPAA-Compliance-Diagnoser/actions/workflows/test-and-build-container.yml)
+
+This repository contains code for diagnosing HIPAA compliance for different database management systems (DBMS).
+
+The application itself runs on Streamlit and connects to each DBMS and runs a suite of queries to check for HIPAA compliance.
 
 ## Supported Databases
 
@@ -36,26 +40,30 @@ This check verifies if database activity monitoring is enabled to detect unautho
 
 ## Installation
 
-To run the HIPAA compliance checks, you'll need to have Python installed on your system. Clone this repository to your local machine:
+To run the HIPAA compliance checks, you'll need to have Python 3.9+ installed on your system. Clone this repository to your local machine and run:
 
 ```bash
-git clone https://github.com/DrDB-ai/db_hipaa_compliance_report.git
+git clone https://github.com/DrDB-ai/HIPAA-Compliance-Diagnoser.git
+pip install -r requirements.txt
+python src/app.py
 ```
+
+For Oracle and SQL Server, you also need to install native drivers on your machine. Please check the Dockerfile for reference.
 
 ## Docker
 
 ### Build
 
 ```
-docker build --platform=linux/amd64  -t db-hipaa-compliance-report .
+docker build --platform=linux/amd64  -t hipaa-compliance-diagnoser .
 ```
 
 ### Run
 
 ```
-docker run --platform=linux/amd64 -p 8501:8501 db-hipaa-compliance-report  
+docker run --platform=linux/amd64 -p 8501:8501 hipaa-compliance-diagnoser
 ```
 
 ## Contributing
 
-Contributions are welcome! If you'd like to add additional HIPAA compliance checks or improve existing ones, feel free to fork this repository, make your changes, and submit a pull request.
+Contributions are welcome! If you'd like to add additional HIPAA compliance checks or improve existing ones or add support for more databases, feel free to fork this repository, make your changes, and submit a pull request.

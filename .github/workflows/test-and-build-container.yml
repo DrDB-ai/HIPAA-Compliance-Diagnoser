@@ -65,6 +65,6 @@ jobs:
 
       - name: Build and push container
         run: |
-          IMAGE_NAME=ghcr.io/drdb-ai/db_hipaa_compliance_report
+          IMAGE_NAME=ghcr.io/drdb-ai/hipaa-compliance-diagnoser
           COMMIT_HASH=$(echo ${{ steps.commit_hash.outputs.hash }})
           docker buildx build --push --tag $IMAGE_NAME:latest --tag $IMAGE_NAME:$COMMIT_HASH .
