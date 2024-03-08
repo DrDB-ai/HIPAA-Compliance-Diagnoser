@@ -6,6 +6,8 @@ This repository contains code for diagnosing HIPAA compliance for different data
 
 The application itself runs on Streamlit and connects to each DBMS and runs a suite of queries to check for HIPAA compliance.
 
+![Diagnoser Screenshot](./screenshot.png)
+
 ## Supported Databases
 
 The HIPAA compliance checks are implemented for the following database management systems:
@@ -15,6 +17,8 @@ The HIPAA compliance checks are implemented for the following database managemen
 - Microsoft SQL Server
 - IBM Db2
 - Oracle Database
+
+For every database you need to enter the hostname, port, database name, username, and password.
 
 ## HIPAA Compliance Checks
 
@@ -37,6 +41,8 @@ This check verifies if encryption is enabled in the database to protect patient 
 ### Database Activity Monitoring Check
 
 This check verifies if database activity monitoring is enabled to detect unauthorized access or suspicious activities related to patient data.
+
+Details for DBMS specific checks can be accessed in the application.
 
 ## Installation
 
@@ -63,6 +69,10 @@ docker build --platform=linux/amd64  -t hipaa-compliance-diagnoser .
 ```
 docker run --platform=linux/amd64 -p 8501:8501 hipaa-compliance-diagnoser
 ```
+
+## Deployment
+
+[Instructions on deploying to AWS, GCP, and Azure](./DEPLOY.md)
 
 ## Contributing
 

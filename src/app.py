@@ -17,7 +17,8 @@ st.markdown("""
 
 
 def main():
-    st.title("HIPAA Compliance Checker")
+    st.image("logo.png", width=200)
+    st.title("HIPAA Compliance Diagnoser")
 
     db_type = st.selectbox("Select database type", get_database_list())
 
