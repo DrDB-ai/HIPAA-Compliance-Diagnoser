@@ -77,3 +77,7 @@ docker run --platform=linux/amd64 -p 8501:8501 hipaa-compliance-diagnoser
 ## Contributing
 
 Contributions are welcome! If you'd like to add additional HIPAA compliance checks or improve existing ones or add support for more databases, feel free to fork this repository, make your changes, and submit a pull request.
+
+## Disclaimer
+
+This tool serves as a reference for assisting in HIPAA compliance efforts within databases. While it provides valuable insights and checks, it may not cover all aspects of HIPAA compliance, and relying solely on this tool is not recommended. Organizations should conduct thorough assessments and consult with legal and compliance experts to ensure comprehensive compliance with HIPAA regulations. This tool should be treated as a supportive resource rather than a definitive measure of compliance.
